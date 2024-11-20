@@ -5,8 +5,11 @@ resource "google_storage_bucket" "default" {
 }
 
 resource "google_project_service" "services" {
-  for_each = toset(["aiplatform.googleapis.com"])
-  service  = each.key
+  for_each = toset([
+    "aiplatform.googleapis.com",
+    "artifactregistry.googleapis.com"
+  ])
+  service = each.key
 }
 
 resource "google_artifact_registry_repository" "components" {
@@ -18,4 +21,6 @@ resource "google_artifact_registry_repository" "components" {
   docker_config {
     immutable_tags = true
   }
+
+  depends_on = [google_project_service.services]
 }
