@@ -15,7 +15,6 @@ resource "google_project_service" "services" {
 resource "google_artifact_registry_repository" "components" {
   location      = "us-central1"
   repository_id = "components"
-  description   = "Repo storing component images"
   format        = "DOCKER"
 
   docker_config {
