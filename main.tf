@@ -6,5 +6,5 @@ resource "google_storage_bucket" "default" {
 
 resource "google_project_service" "services" {
   for_each = toset(["aiplatform.googleapis.com"])
-  service = each.key
+  service  = each.key
 }
