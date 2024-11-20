@@ -13,13 +13,19 @@ resource "google_project_service" "services" {
 }
 
 resource "google_artifact_registry_repository" "components" {
-  location      = "us-central1"
   repository_id = "components"
   format        = "DOCKER"
 
   docker_config {
     immutable_tags = true
   }
+
+  depends_on = [google_project_service.services]
+}
+
+resource "google_artifact_registry_repository" "pipelines" {
+  repository_id = "pipelines"
+  format        = "KFP"
 
   depends_on = [google_project_service.services]
 }
