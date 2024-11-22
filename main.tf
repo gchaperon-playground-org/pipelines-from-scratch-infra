@@ -44,6 +44,12 @@ resource "google_storage_bucket" "pipeline_artifacts" {
   force_destroy = true
 }
 
+resource "google_storage_bucket_iam_member" "object_user" {
+  bucket = google_storage_bucket.pipeline_artifacts.name
+  role = "roles/storage.objectUser"
+  member = "serviceAccount:${google_service_account.product.email}"
+}
+
 resource "random_id" "pipeline_artifacts_bucket_id" {
   byte_length = 4
 }
