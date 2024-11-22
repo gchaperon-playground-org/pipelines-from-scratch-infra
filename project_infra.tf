@@ -4,5 +4,5 @@
 # using CMEK. For now, ignore CMEK
 resource "google_vertex_ai_metadata_store" "default" {
   provider = google-beta
-  name="default"
+  name     = "default"
 }

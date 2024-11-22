@@ -46,7 +46,7 @@ resource "google_storage_bucket" "pipeline_artifacts" {
 
 resource "google_storage_bucket_iam_member" "object_user" {
   bucket = google_storage_bucket.pipeline_artifacts.name
-  role = "roles/storage.objectUser"
+  role   = "roles/storage.objectUser"
   member = "serviceAccount:${google_service_account.product.email}"
 }
 
