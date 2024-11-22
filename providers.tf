@@ -20,3 +20,13 @@ provider "google" {
     team    = "gchaperon"
   }
 }
+
+provider "google-beta" {
+  project = local.project
+  region  = "us-central1"
+  zone    = "us-central1-c"
+  default_labels = {
+    product = local.product
+    team    = "gchaperon"
+  }
+}
