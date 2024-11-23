@@ -1,0 +1,31 @@
+# Uploads deploy key to github. Noop if already exists.
+# Github api reference:
+# https://docs.github.com/en/rest/deploy-keys/deploy-keys?apiVersion=2022-11-28#about-deploy-keys
+
+# NOTE: $${}-interpolation is designed to be done by terraform
+
+# Check if the API key already exists in the list of deploy keys
+gh api \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    /repos/${repo_owner}/${repo_name}/keys \
+    --jq '.[].key' | grep -q '${public_key}'
+
+RETVAL=$?
+
+if [ "$RETVAL" -eq 0 ]; then
+    # grep returned zero: the API key exists in the current list of deploy keys
+    echo "API key already in deploy keys, skipping..."
+else
+    # grep returned non-zero: the API key was not found in the list
+    echo "Adding API key"
+
+    # Add the new API key to the deploy keys
+    gh api \
+        --method POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        /repos/${repo_owner}/${repo_name}/keys \
+        -f "title=dataform-public-key" \
+        -f "key=${public_key}"
+fi
