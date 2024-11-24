@@ -21,7 +21,14 @@ resource "google_dataform_repository" "default" {
     }
   }
 
-  service_account = google_service_account.product.id
+  workspace_compilation_overrides {
+    schema_suffix = "feature"
+    # NOTE: ref for $$
+    # https://developer.hashicorp.com/terraform/language/expressions/strings#escape-sequences
+    table_prefix = "$${workspaceName}"
+  }
+
+  service_account = google_service_account.product.email
 }
 
 resource "google_secret_manager_secret" "ssh_private_key" {
