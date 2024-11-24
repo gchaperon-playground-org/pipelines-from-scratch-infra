@@ -15,8 +15,8 @@ terraform {
   }
 
   backend "gcs" {
-    bucket  = "terraform-states-b9bc8e6f"
-    prefix  = "pipelines-from-scratch"
+    bucket = "terraform-states-b9bc8e6f"
+    prefix = "pipelines-from-scratch"
   }
 }
 
