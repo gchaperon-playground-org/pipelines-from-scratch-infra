@@ -5,6 +5,7 @@ resource "google_project_service" "secrets_api" {
   service = each.key
 }
 
+# Dataform repository
 resource "google_dataform_repository" "default" {
   provider = google-beta
   name     = local.product
@@ -31,6 +32,7 @@ resource "google_dataform_repository" "default" {
   service_account = google_service_account.product.email
 }
 
+# Dataform private ssh key to connect to Github
 resource "google_secret_manager_secret" "ssh_private_key" {
   secret_id = "dataform-ssh-private-key"
 
@@ -47,6 +49,7 @@ resource "google_project_service_identity" "dataform_sa" {
   service = "dataform.googleapis.com"
 }
 
+# Permissions for the dataform service agent to access private ssh key
 resource "google_secret_manager_secret_iam_member" "secret_accessor" {
   secret_id = google_secret_manager_secret.ssh_private_key.id
   role      = "roles/secretmanager.secretAccessor"
@@ -71,7 +74,9 @@ resource "tls_private_key" "ssh_key_pair" {
 }
 
 locals {
+  # Github host public key. What is tipically stored in .ssh/known_hosts
   github_host_ed25519_public_key = "AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
   github_repo_name               = "pipelines-from-scratch-dataform"
   github_repo_owner              = "gchaperon-playground-org"
 }
+
