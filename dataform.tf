@@ -49,13 +49,6 @@ resource "google_project_service_identity" "dataform_sa" {
   service = "dataform.googleapis.com"
 }
 
-# Permissions for the dataform service agent to access private ssh key
-resource "google_secret_manager_secret_iam_member" "secret_accessor" {
-  secret_id = google_secret_manager_secret.ssh_private_key.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_project_service_identity.dataform_sa.member
-}
-
 resource "google_secret_manager_secret_version" "ssh_private_key" {
   secret      = google_secret_manager_secret.ssh_private_key.id
   secret_data = tls_private_key.ssh_key_pair.private_key_openssh
@@ -71,6 +64,19 @@ resource "tls_private_key" "ssh_key_pair" {
       public_key = self.public_key_openssh
     })
   }
+}
+
+# Permissions for the dataform service agent
+resource "google_secret_manager_secret_iam_member" "secret_accessor" {
+  secret_id = google_secret_manager_secret.ssh_private_key.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_project_service_identity.dataform_sa.member
+}
+
+resource "google_service_account_iam_member" "token_creator" {
+  service_account_id = google_service_account.product.name
+  role = "roles/iam.serviceAccountTokenCreator"
+  member = google_project_service_identity.dataform_sa.member
 }
 
 locals {
