@@ -60,13 +60,13 @@ locals {
 }
 
 resource "google_bigquery_dataset" "datasets" {
-  for_each = toset([local.dataset_id, "${local.dataset_id}_feature"])
-  dataset_id = each.key
+  for_each                   = toset([local.dataset_id, "${local.dataset_id}_feature"])
+  dataset_id                 = each.key
   delete_contents_on_destroy = true
 }
 
 resource "google_bigquery_dataset_iam_member" "admin" {
-  for_each = toset([for dataset in google_bigquery_dataset.datasets: dataset.dataset_id])
+  for_each   = toset([for dataset in google_bigquery_dataset.datasets : dataset.dataset_id])
   dataset_id = each.key
   role       = "roles/bigquery.admin"
   member     = google_service_account.product.member
