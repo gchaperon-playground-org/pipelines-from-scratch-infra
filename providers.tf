@@ -13,6 +13,11 @@ terraform {
       version = "4.0.6"
     }
   }
+
+  backend "gcs" {
+    bucket = "terraform-states-b9bc8e6f"
+    prefix = "pipelines-from-scratch"
+  }
 }
 
 provider "google" {
