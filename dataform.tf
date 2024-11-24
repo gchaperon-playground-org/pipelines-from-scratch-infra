@@ -8,7 +8,8 @@ resource "google_project_service" "secrets_api" {
 # Dataform repository
 resource "google_dataform_repository" "default" {
   provider = google-beta
-  name     = local.product
+
+  name = local.product
 
   git_remote_settings {
     url = "git@github.com:gchaperon-playground-org/pipelines-from-scratch-dataform.git"
@@ -32,6 +33,52 @@ resource "google_dataform_repository" "default" {
   service_account = google_service_account.product.email
 }
 
+# Dataform release config
+resource "null_resource" "release_config_args" {
+  # NOTE: Modification of this resource forces recreation of the resources that
+  # declare it in their lifecycle.replace_triggered_by property
+  triggers = {
+    repository    = google_dataform_repository.default.name
+    name          = "daily-release"
+    git_commitish = "master"
+    cron_schedule = "*/2 * * * *"
+    time_zone     = "America/Santiago"
+  }
+}
+
+resource "google_dataform_repository_release_config" "daily" {
+  provider = google-beta
+
+  repository = null_resource.release_config_args.triggers.repository
+
+  name          = null_resource.release_config_args.triggers.name
+  git_commitish = null_resource.release_config_args.triggers.git_commitish
+  cron_schedule = null_resource.release_config_args.triggers.cron_schedule
+  time_zone     = null_resource.release_config_args.triggers.time_zone
+
+  lifecycle {
+    replace_triggered_by = [null_resource.release_config_args]
+  }
+}
+
+# Dataform workflow config
+resource "google_dataform_repository_workflow_config" "daily" {
+  provider = google-beta
+
+  name           = "daily-workflow"
+  release_config = google_dataform_repository_release_config.daily.id
+
+  invocation_config {
+    service_account = google_service_account.product.email
+  }
+
+  cron_schedule = "0 7 * * *"
+  time_zone     = "America/Santiago"
+  repository    = google_dataform_repository.default.name
+}
+
+
+
 # Dataform private ssh key to connect to Github
 resource "google_secret_manager_secret" "ssh_private_key" {
   secret_id = "dataform-ssh-private-key"
@@ -49,13 +96,6 @@ resource "google_project_service_identity" "dataform_sa" {
   service = "dataform.googleapis.com"
 }
 
-# Permissions for the dataform service agent to access private ssh key
-resource "google_secret_manager_secret_iam_member" "secret_accessor" {
-  secret_id = google_secret_manager_secret.ssh_private_key.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_project_service_identity.dataform_sa.member
-}
-
 resource "google_secret_manager_secret_version" "ssh_private_key" {
   secret      = google_secret_manager_secret.ssh_private_key.id
   secret_data = tls_private_key.ssh_key_pair.private_key_openssh
@@ -71,6 +111,19 @@ resource "tls_private_key" "ssh_key_pair" {
       public_key = self.public_key_openssh
     })
   }
+}
+
+# Permissions for the dataform service agent
+resource "google_secret_manager_secret_iam_member" "secret_accessor" {
+  secret_id = google_secret_manager_secret.ssh_private_key.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_project_service_identity.dataform_sa.member
+}
+
+resource "google_service_account_iam_member" "token_creator" {
+  service_account_id = google_service_account.product.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = google_project_service_identity.dataform_sa.member
 }
 
 locals {
