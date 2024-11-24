@@ -53,3 +53,27 @@ resource "google_storage_bucket_iam_member" "object_user" {
 resource "random_id" "pipeline_artifacts_bucket_id" {
   byte_length = 4
 }
+
+# Product Bigquery Dataset
+locals {
+  dataset_id = replace(local.product, "-", "_")
+}
+
+resource "google_bigquery_dataset" "datasets" {
+  for_each = toset([local.dataset_id, "${local.dataset_id}_feature"])
+  dataset_id = each.key
+  delete_contents_on_destroy = true
+}
+
+resource "google_bigquery_dataset_iam_member" "admin" {
+  for_each = toset([for dataset in google_bigquery_dataset.datasets: dataset.dataset_id])
+  dataset_id = each.key
+  role       = "roles/bigquery.admin"
+  member     = google_service_account.product.member
+}
+
+resource "google_project_iam_member" "bigquery_job_user" {
+  project = data.google_project.default.id
+  role    = "roles/bigquery.jobUser"
+  member  = google_service_account.product.member
+}
