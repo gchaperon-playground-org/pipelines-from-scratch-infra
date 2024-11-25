@@ -10,3 +10,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
       - run: terraform fmt -check -recursive
+
+  test-gcloud-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          service_account: gha-gchaperon-playground-org@pipelines-from-scratch.iam.gserviceaccount.com
+          workload_identity_provider: projects/pipelines-from-scratch/locations/global/workloadIdentityPools/github/providers/gha-gchaperon
+      - uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          version: '>= 363.0.0'
+      - run: gcloud info
+      - run: gsutil ls -R gs://terraform-states-b9bc8e6f
