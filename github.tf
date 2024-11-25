@@ -28,9 +28,9 @@ resource "google_service_account_iam_member" "workload_identity_user" {
   member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.respository_owner/gchaperon-playground-org"
 }
 
-resource "google_iam_workload_identity_pool_provider" "example" {
+resource "google_iam_workload_identity_pool_provider" "github_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
-  workload_identity_pool_provider_id = "gha-gchaperon"
+  workload_identity_pool_provider_id = "gha-gchaperon-v2"
   description                        = "Github Actions Provider for gchaperon-playground-org"
   attribute_condition                = <<-EOT
     assertion.repository_owner == "gchaperon-playground-org"
@@ -47,7 +47,7 @@ resource "google_iam_workload_identity_pool_provider" "example" {
   }
 }
 
-output "workload_identity_provider_id" {
-  value = google_iam_workload_identity_pool_provider.example.id
+output "workload_identity_provider_name" {
+  value = google_iam_workload_identity_pool_provider.github_provider.name
 }
 

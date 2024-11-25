@@ -22,7 +22,7 @@ jobs:
         with:
           project_id: pipelines-from-scratch
           service_account: gha-gchaperon-playground-org@pipelines-from-scratch.iam.gserviceaccount.com
-          workload_identity_provider: projects/pipelines-from-scratch/locations/global/workloadIdentityPools/github/providers/gha-gchaperon
+          workload_identity_provider: projects/251863247499/locations/global/workloadIdentityPools/github/providers/gha-gchaperon-v2
       - uses: 'google-github-actions/setup-gcloud@v2'
         with:
           version: '>= 363.0.0'
