@@ -24,7 +24,8 @@ resource "google_iam_workload_identity_pool" "github" {
 resource "google_service_account_iam_member" "workload_identity_user" {
   service_account_id = google_service_account.github_actions.id
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.id}/attribute.respository_owner/gchaperon-playground-org"
+  # NOTE: this uses ...identity_pool.*.name instead of *.id
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.name}/attribute.respository_owner/gchaperon-playground-org"
 }
 
 resource "google_iam_workload_identity_pool_provider" "example" {
