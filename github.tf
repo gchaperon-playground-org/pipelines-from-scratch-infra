@@ -6,6 +6,18 @@ resource "google_service_account" "github_actions" {
   EOT
 }
 
+resource "google_project_iam_member" "gha_editor" {
+  project = data.google_project.default.name
+  role = "roles/editor"
+  member = google_service_account.github_actions.member
+}
+
+resource "google_service_account_iam_member" "my_token_creator" {
+  service_account_id = google_service_account.github_actions.id
+  role = "roles/iam.serviceAccountTokenCreator"
+  member = "user:gabrielchaperonb@gmail.com"
+}
+
 output "github_service_account_name" {
   value = google_service_account.github_actions.email
 }
