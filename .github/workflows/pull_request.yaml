@@ -12,11 +12,15 @@ jobs:
       - run: terraform fmt -check -recursive
 
   test-gcloud-auth:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: google-github-actions/auth@v2
         with:
+          project_id: pipelines-from-scratch
           service_account: gha-gchaperon-playground-org@pipelines-from-scratch.iam.gserviceaccount.com
           workload_identity_provider: projects/pipelines-from-scratch/locations/global/workloadIdentityPools/github/providers/gha-gchaperon
       - uses: 'google-github-actions/setup-gcloud@v2'
