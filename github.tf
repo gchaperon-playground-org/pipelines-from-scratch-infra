@@ -21,6 +21,12 @@ resource "google_iam_workload_identity_pool" "github" {
   display_name              = "GitHub Actions Pool"
 }
 
+resource "google_service_account_iam_member" "workload_identity_user" {
+  service_account_id = google_service_account.github_actions.id
+  role               = "roles/iam.workloadIdentityUser"
+  member             = "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github.id}/attribute.respository_owner/gchaperon-playground-org"
+}
+
 resource "google_iam_workload_identity_pool_provider" "example" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.github.workload_identity_pool_id
   workload_identity_pool_provider_id = "gha-gchaperon"
