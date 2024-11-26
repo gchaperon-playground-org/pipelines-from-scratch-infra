@@ -13,11 +13,13 @@ resource "google_service_account" "github_actions" {
   EOT
 }
 
-resource "google_project_iam_member" "gha_editor" {
-  project = data.google_project.default.name
-  role    = "roles/editor"
-  member  = google_service_account.github_actions.member
+resource "google_project_iam_member" "gha_roles" {
+  for_each = toset(["roles/editor", "roles/secretmanager.admin"])
+  project  = data.google_project.default.name
+  role     = each.key
+  member   = google_service_account.github_actions.member
 }
+
 
 resource "google_service_account_iam_member" "my_token_creator" {
   service_account_id = google_service_account.github_actions.id
