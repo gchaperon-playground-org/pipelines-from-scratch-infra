@@ -19,3 +19,11 @@ resource "google_project_iam_member" "artifact_reader" {
 
 data "google_project" "default" {
 }
+
+resource "google_project_service" "project_services" {
+  for_each = toset([
+    "cloudresourcemanager.googleapis.com",
+    "iam.googleapis.com"
+  ])
+  service = each.key
+}
