@@ -44,10 +44,16 @@ resource "google_storage_bucket" "pipeline_artifacts" {
   force_destroy = true
 }
 
+resource "google_storage_bucket" "component_metadata" {
+  name          = "${local.product}-kfp-component-metadata-${random_id.pipeline_artifacts_bucket_id.hex}"
+  location      = "US"
+  force_destroy = true
+}
+
 resource "google_storage_bucket_iam_member" "object_user" {
   bucket = google_storage_bucket.pipeline_artifacts.name
   role   = "roles/storage.objectUser"
-  member = "serviceAccount:${google_service_account.product.email}"
+  member = google_service_account.product.member
 }
 
 resource "random_id" "pipeline_artifacts_bucket_id" {
