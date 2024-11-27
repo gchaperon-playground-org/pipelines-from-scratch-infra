@@ -21,4 +21,4 @@ jobs:
           version: '>= 363.0.0'
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init
-      - run: terraform plan
+      - run: terraform apply -auto-approve
