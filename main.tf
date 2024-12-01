@@ -24,6 +24,12 @@ resource "google_artifact_registry_repository" "pipelines" {
   depends_on = [google_project_service.services]
 }
 
+resource "google_artifact_registry_repository_iam_member" "reader" {
+  repository = google_artifact_registry_repository.pipelines.id
+  role       = "roles/artifactregistry.reader"
+  member     = google_service_account.product.member
+}
+
 # Service account with granular permissions
 # https://cloud.google.com/vertex-ai/docs/pipelines/configure-project#service-account
 resource "google_service_account" "product" {
